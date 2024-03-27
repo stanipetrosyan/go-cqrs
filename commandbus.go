@@ -5,34 +5,63 @@ type CommandBus interface {
 }
 
 type defaultCommandBus struct {
+	eventstore EventStore
 }
 
 func (c defaultCommandBus) apply(command Command) {
 	switch command := command.(type) {
 	case CreateAccount:
-		CreateAccountHandler{}.handle(command)
+		CreateAccountHandler{eventstore: c.eventstore}.handle(command)
 	case DepositMoney:
-		DepositMoneyHandler{}.handle(command)
-
+		DepositMoneyHandler{eventstore: c.eventstore}.handle(command)
+	case WithdrawMoney:
+		WithdrawMoneyHandler{eventstore: c.eventstore}.handle(command)
 	}
 }
 
-func NewCommandBus() CommandBus {
-	return defaultCommandBus{}
+func NewCommandBus(eventstore EventStore) CommandBus {
+	return defaultCommandBus{eventstore: eventstore}
 }
 
 type CommandHandler[T Command] interface {
 	handle(command T)
 }
 
-type CreateAccountHandler struct{}
-
-func (h CreateAccountHandler) handle(command CreateAccount) {
-	println(command.name)
+type CreateAccountHandler struct {
+	eventstore EventStore
 }
 
-type DepositMoneyHandler struct{}
+func (h CreateAccountHandler) handle(command CreateAccount) {
+	HydrateBankAccount(h.eventstore.load(command.name))
+	event := AccountCreated{name: command.name}
+
+	h.eventstore.save(command.name, event)
+}
+
+type DepositMoneyHandler struct {
+	eventstore EventStore
+}
 
 func (h DepositMoneyHandler) handle(command DepositMoney) {
-	println(command.value)
+	HydrateBankAccount(h.eventstore.load(command.name))
+	event := MoneyDeposited{name: command.name, value: command.value}
+
+	h.eventstore.save(command.name, event)
+}
+
+type WithdrawMoneyHandler struct {
+	eventstore EventStore
+}
+
+func (h WithdrawMoneyHandler) handle(command WithdrawMoney) {
+	account := HydrateBankAccount(h.eventstore.load(command.name))
+
+	if account.CanWithdrawn(command.value) {
+		event := MoneyWithdrawn{name: command.name, value: command.value}
+
+		h.eventstore.save(command.name, event)
+	} else {
+		println("cannot perform command")
+	}
+
 }
