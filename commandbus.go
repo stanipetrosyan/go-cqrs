@@ -23,8 +23,8 @@ func NewCommandBus(eventstore EventStore) CommandBus {
 	return defaultCommandBus{eventstore: eventstore}
 }
 
-type CommandHandler[T Command] interface {
-	handle(command T)
+type CommandHandler interface {
+	handle(command Command)
 }
 
 type CreateAccountHandler struct {

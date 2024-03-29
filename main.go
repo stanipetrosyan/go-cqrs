@@ -39,6 +39,7 @@ type AccountsView struct {
 
 func (v *AccountsView) Listen() {
 	v.eventbus.Channel("AccountCreated").Subscriber().Listen(func(context goeventbus.Context) {
+		println("account created:", context.Result().Data.(AccountCreated).name)
 		v.accounts = append(v.accounts, context.Result().Data.(AccountCreated).name)
 	})
 }
