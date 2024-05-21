@@ -61,7 +61,7 @@ func (h WithdrawMoneyHandler) handle(command WithdrawMoney) {
 
 		h.eventstore.save(command.name, event)
 	} else {
-		println("cannot perform command")
+		println("Cannot perform command: WithdrawMoney")
 	}
 
 }

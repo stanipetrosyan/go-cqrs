@@ -23,7 +23,7 @@ func (e InMemoryEventStore) save(aggregateName string, event Event) {
 
 	message := goeventbus.CreateMessage().SetBody(event)
 	e.eventbus.Channel(event.eventName()).Publisher().Publish(message)
-	println("saving event")
+	println("saving event:", event.eventName())
 
 }
 func (e InMemoryEventStore) load(aggregateName string) []Event {

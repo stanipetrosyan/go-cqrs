@@ -10,44 +10,46 @@ func main() {
 	eventstore := NewEventStore(eventbus)
 	commandBus := NewCommandBus(eventstore)
 
-	accountView := NewAccountView(eventbus)
-	accountView.Listen()
+	accountProjection := NewAccountProjection(eventbus)
+	accountProjection.Listen()
 
 	createAccount := CreateAccount{name: "user"}
 
 	commandBus.apply(createAccount)
 
+	println("Accounts:", accountProjection.GetAccounts()[0])
+
+	println("Depositing 10 dollars")
 	depositMoney := DepositMoney{name: "user", value: 10}
 
 	commandBus.apply(depositMoney)
 
+	println("Withdrawing 20 dollars")
 	withdrawMoney := WithdrawMoney{name: "user", value: 20}
 
 	commandBus.apply(withdrawMoney)
 
-	println(accountView.GetAccounts()[0])
 }
 
-type View interface {
+type Projection interface {
 	Listen()
 }
 
-type AccountsView struct {
+type AccountsProjection struct {
 	eventbus goeventbus.EventBus
 	accounts []string
 }
 
-func (v *AccountsView) Listen() {
+func (v *AccountsProjection) Listen() {
 	v.eventbus.Channel("AccountCreated").Subscriber().Listen(func(context goeventbus.Context) {
-		println("account created:", context.Result().Data.(AccountCreated).name)
 		v.accounts = append(v.accounts, context.Result().Data.(AccountCreated).name)
 	})
 }
 
-func (v *AccountsView) GetAccounts() []string {
+func (v *AccountsProjection) GetAccounts() []string {
 	return v.accounts
 }
 
-func NewAccountView(eventbus goeventbus.EventBus) *AccountsView {
-	return &AccountsView{eventbus: eventbus, accounts: []string{}}
+func NewAccountProjection(eventbus goeventbus.EventBus) *AccountsProjection {
+	return &AccountsProjection{eventbus: eventbus, accounts: []string{}}
 }

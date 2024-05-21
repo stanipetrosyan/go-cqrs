@@ -1,2 +1,4 @@
 github.com/stanipetrosyan/go-eventbus v0.6.0 h1:T9QJ/5gIdNx227CwFCas3T9hZw08DClqvWtd35oJgVU=
 github.com/stanipetrosyan/go-eventbus v0.6.0/go.mod h1:5MsnHSJaL4ZL1i6eL8wFQJEo1b06J6SpIqPifI8NrwU=
+github.com/stanipetrosyan/go-eventbus v0.7.0 h1:9GMm+KT5X2NvLb+v9dLcYUU1SKHMhwDBWSPeVUfywrA=
+github.com/stanipetrosyan/go-eventbus v0.7.0/go.mod h1:SBVqV1C1ToaLaF3c6OSKXIVXmcC8jvUD68kfTtFQ5ns=
