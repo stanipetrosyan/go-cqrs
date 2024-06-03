@@ -3,8 +3,8 @@ package main
 import goeventbus "github.com/stanipetrosyan/go-eventbus"
 
 type EventStore interface {
-	save(aggregateName string, event Event)
-	load(aggregateName string) []Event
+	Save(aggregateName string, event Event)
+	Load(aggregateName string) []Event
 }
 
 type InMemoryEventStore struct {
@@ -12,7 +12,7 @@ type InMemoryEventStore struct {
 	events   map[string][]Event
 }
 
-func (e InMemoryEventStore) save(aggregateName string, event Event) {
+func (e InMemoryEventStore) Save(aggregateName string, event Event) {
 	_, exists := e.events[aggregateName]
 
 	if !exists {
@@ -26,7 +26,7 @@ func (e InMemoryEventStore) save(aggregateName string, event Event) {
 	println("saving event:", event.eventName())
 
 }
-func (e InMemoryEventStore) load(aggregateName string) []Event {
+func (e InMemoryEventStore) Load(aggregateName string) []Event {
 	return e.events[aggregateName]
 }
 
