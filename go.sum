@@ -1,4 +1,10 @@
-github.com/stanipetrosyan/go-eventbus v0.6.0 h1:T9QJ/5gIdNx227CwFCas3T9hZw08DClqvWtd35oJgVU=
-github.com/stanipetrosyan/go-eventbus v0.6.0/go.mod h1:5MsnHSJaL4ZL1i6eL8wFQJEo1b06J6SpIqPifI8NrwU=
-github.com/stanipetrosyan/go-eventbus v0.7.0 h1:9GMm+KT5X2NvLb+v9dLcYUU1SKHMhwDBWSPeVUfywrA=
-github.com/stanipetrosyan/go-eventbus v0.7.0/go.mod h1:SBVqV1C1ToaLaF3c6OSKXIVXmcC8jvUD68kfTtFQ5ns=
+github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
+github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
+github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/stanipetrosyan/go-eventbus v0.8.0 h1:zU2yz/lIsfhUj8CjADe+u7tZ+QaKPWP91qKG6c5QRQ4=
+github.com/stanipetrosyan/go-eventbus v0.8.0/go.mod h1:IoBXMqNJwjIff2rvbkTdIxP055VjiysepBMw0xM1zkQ=
+github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
+github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
+gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
+gopkg.in/yaml.v3 v3.0.1/go.mod h1:K4uyk7z7BCEPqu6E+C64Yfv1cQ7kz7rIZviUmN+EgEM=

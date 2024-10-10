@@ -1,14 +1,20 @@
 package main
 
 import (
+	"sync"
+
 	goeventbus "github.com/stanipetrosyan/go-eventbus"
 )
 
 func main() {
+	var wg sync.WaitGroup
+	wg.Add(1)
 	println("Bank account cqrs example")
 	eventbus := goeventbus.NewEventBus()
 	eventstore := NewEventStore(eventbus)
 	commandBus := NewCommandBus(eventstore)
+
+	NewWorkflow(eventbus).Step(SagaStep{Transaction: "MoneyDeposited"}).Step(SagaStep{Transaction: "MoneyWithdrawn"}).Listen()
 
 	accountProjection := NewAccountProjection(eventbus)
 	accountProjection.Listen()
@@ -17,18 +23,18 @@ func main() {
 
 	commandBus.apply(createAccount)
 
-	println("Accounts:", accountProjection.GetAccounts()[0])
-
+	/* 	println("Accounts:", accountProjection.GetAccounts()[0])
+	 */
 	println("Depositing 10 dollars")
 	depositMoney := DepositMoney{name: "user", value: 10}
 
 	commandBus.apply(depositMoney)
 
-	println("Withdrawing 20 dollars")
-	withdrawMoney := WithdrawMoney{name: "user", value: 20}
+	println("Withdrawing 5 dollars")
+	withdrawMoney := WithdrawMoney{name: "user", value: 5}
 
 	commandBus.apply(withdrawMoney)
-
+	wg.Wait()
 }
 
 type Projection interface {
