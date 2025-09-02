@@ -6,48 +6,66 @@ import (
 
 type SagaStep struct {
 	Transaction string
-	Compansate  Event
 }
 
 type Workflow interface {
 	Step(step SagaStep) Workflow
-	Listen()
+	Commit()
+	//Rollback()
 }
 
 type WireTransferWorkflow struct {
-	eventbus goeventbus.EventBus
-	Steps    []SagaStep
+	eventbus   goeventbus.EventBus
+	eventStore EventStore
+	steps      []SagaStep
 }
 
-func NewWorkflow(eventbus goeventbus.EventBus) Workflow {
-	return &WireTransferWorkflow{eventbus: eventbus, Steps: []SagaStep{}}
+func NewWorkflow(eventbus goeventbus.EventBus, eventStore EventStore) Workflow {
+	return &WireTransferWorkflow{eventbus: eventbus, eventStore: eventStore, steps: []SagaStep{}}
 }
 
 func (w *WireTransferWorkflow) Step(step SagaStep) Workflow {
-	w.Steps = append(w.Steps, step)
+	w.steps = append(w.steps, step)
 	return w
 }
 
-func (w *WireTransferWorkflow) Listen() {
-	var completedSteps map[string][]string = make(map[string][]string)
+func (w *WireTransferWorkflow) Commit() {
+	if len(w.steps) == 0 {
+		return
+	}
 
-	for _, event := range w.Steps {
-		w.eventbus.Channel(event.Transaction).Subscriber().Listen(func(context goeventbus.Context) {
-			aggregate := context.Result().Data.(Event).Aggregate()
+	var completedSteps map[string][]Event = make(map[string][]Event)
+	var aggregateCompleted = ""
 
-			completedSteps[aggregate] = append(completedSteps[aggregate], event.Transaction)
-
-			if len(completedSteps[aggregate]) == len(w.Steps) {
+	go func() {
+		for {
+			if aggregateCompleted != "" {
 				println("stage completed")
-				println(aggregate)
+
+				for _, event := range completedSteps[aggregateCompleted] {
+					println(event.Aggregate())
+					println(event.eventName())
+					w.eventStore.Save(event.Aggregate(), event)
+				}
+				aggregateCompleted = ""
+			}
+		}
+
+	}()
+
+	for _, event := range w.steps {
+		w.eventbus.Channel(event.Transaction).Subscriber().Listen(func(context goeventbus.Context) {
+			eventReceived := context.Result().Extract().(Event)
+			aggregate := context.Result().Extract().(Event).Aggregate()
+
+			completedSteps[aggregate] = append(completedSteps[aggregate], eventReceived)
+
+			if len(completedSteps[aggregate]) == len(w.steps) {
+				aggregateCompleted = aggregate
 			}
 
 		})
 
-		w.eventbus.Channel(event.Compansate.eventName()).Subscriber().Listen(func(context goeventbus.Context) {
-			aggregate := context.Result().Data.(Event).Aggregate()
-			completedSteps[aggregate] = []string{}
-		})
-
 	}
+
 }

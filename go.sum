@@ -4,6 +4,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stanipetrosyan/go-eventbus v0.8.0 h1:zU2yz/lIsfhUj8CjADe+u7tZ+QaKPWP91qKG6c5QRQ4=
 github.com/stanipetrosyan/go-eventbus v0.8.0/go.mod h1:IoBXMqNJwjIff2rvbkTdIxP055VjiysepBMw0xM1zkQ=
+github.com/stanipetrosyan/go-eventbus v0.9.0 h1:souNyrVlBRkbBxSGLBHEi5iCKbn6rLwOLBJDL+OYjsg=
+github.com/stanipetrosyan/go-eventbus v0.9.0/go.mod h1:SMYv89Tx+MvH4Om9wVA1QXZws4YTJ62lJDILG4yK6Uo=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 gopkg.in/yaml.v3 v3.0.1 h1:fxVm/GzAzEWqLHuvctI91KS9hhNmmWOoWu0XTYJS7CA=
