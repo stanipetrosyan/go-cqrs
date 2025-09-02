@@ -21,7 +21,7 @@ func (e InMemoryEventStore) Save(aggregateName string, event Event) {
 		e.events[aggregateName] = append(e.events[aggregateName], event)
 	}
 
-	message := goeventbus.CreateMessage().SetBody(event)
+	message := goeventbus.NewMessageBuilder().SetPayload(event).Build()
 	e.eventbus.Channel(event.eventName()).Publisher().Publish(message)
 	println("saving event:", event.eventName())
 

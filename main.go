@@ -42,7 +42,7 @@ type AccountsProjection struct {
 
 func (v *AccountsProjection) Listen() {
 	v.eventbus.Channel("AccountCreated").Subscriber().Listen(func(context goeventbus.Context) {
-		v.accounts = append(v.accounts, context.Result().Data.(AccountCreated).name)
+		v.accounts = append(v.accounts, context.Result().Extract().(AccountCreated).name)
 	})
 }
 
