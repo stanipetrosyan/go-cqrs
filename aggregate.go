@@ -19,6 +19,8 @@ func HydrateBankAccount(events []Event) BankAccount {
 			account.money += event.value
 		case MoneyWithdrawn:
 			account.money -= event.value
+		case MoneyWithdrawnRejected:
+			//account.money += event.value
 		}
 	}
 

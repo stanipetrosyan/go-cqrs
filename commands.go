@@ -7,11 +7,17 @@ type CreateAccount struct {
 }
 
 type WithdrawMoney struct {
-	name  string
-	value int
+	transactionId string
+	name          string
+	value         int
 }
 
 type DepositMoney struct {
-	name  string
-	value int
+	transactionId string
+	name          string
+	value         int
+}
+
+type WireTransferStart struct {
+	name string
 }

@@ -16,6 +16,8 @@ func (c defaultCommandBus) apply(command Command) {
 		DepositMoneyHandler{eventstore: c.eventstore}.handle(command)
 	case WithdrawMoney:
 		WithdrawMoneyHandler{eventstore: c.eventstore}.handle(command)
+	case WireTransferStart:
+		WireTransferStartHandler{eventstore: c.eventstore}.handle(command)
 	}
 }
 

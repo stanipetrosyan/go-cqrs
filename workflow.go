@@ -6,12 +6,12 @@ import (
 
 type SagaStep struct {
 	Transaction string
+	Compensate  string
 }
 
 type Workflow interface {
 	Step(step SagaStep) Workflow
 	Commit()
-	//Rollback()
 }
 
 type WireTransferWorkflow struct {
@@ -35,35 +35,26 @@ func (w *WireTransferWorkflow) Commit() {
 	}
 
 	var completedSteps map[string][]Event = make(map[string][]Event)
-	var aggregateCompleted = ""
-
-	go func() {
-		for {
-			if aggregateCompleted != "" {
-				println("stage completed")
-
-				for _, event := range completedSteps[aggregateCompleted] {
-					println(event.Aggregate())
-					println(event.eventName())
-					w.eventStore.Save(event.Aggregate(), event)
-				}
-				aggregateCompleted = ""
-			}
-		}
-
-	}()
 
 	for _, event := range w.steps {
 		w.eventbus.Channel(event.Transaction).Subscriber().Listen(func(context goeventbus.Context) {
-			eventReceived := context.Result().Extract().(Event)
-			aggregate := context.Result().Extract().(Event).Aggregate()
+			eventReceived := context.Result().Extract().(TransactionEvent)
+			transactionId := context.Result().Extract().(TransactionEvent).Transaction()
 
-			completedSteps[aggregate] = append(completedSteps[aggregate], eventReceived)
+			completedSteps[transactionId] = append(completedSteps[transactionId], eventReceived)
 
-			if len(completedSteps[aggregate]) == len(w.steps) {
-				aggregateCompleted = aggregate
+			if len(completedSteps[transactionId]) == len(w.steps) {
+				commitEvent := WireTransferCompleted{transaction: transactionId}
+				w.eventStore.Save(commitEvent.Aggregate(), commitEvent)
 			}
+		})
 
+		w.eventbus.Channel(event.Compensate).Subscriber().Listen(func(context goeventbus.Context) {
+			transactionId := context.Result().Extract().(TransactionEvent).Transaction()
+
+			rollbackEvent := WireTransferRejected{transaction: transactionId}
+			w.eventStore.Save(rollbackEvent.Aggregate(), rollbackEvent)
+			delete(completedSteps, transactionId)
 		})
 
 	}

@@ -21,7 +21,7 @@ type DepositMoneyHandler struct {
 
 func (h DepositMoneyHandler) handle(command DepositMoney) {
 	HydrateBankAccount(h.eventstore.Load(command.name))
-	event := MoneyDeposited{name: command.name, value: command.value}
+	event := MoneyDeposited{transactionId: command.transactionId, name: command.name, value: command.value}
 
 	h.eventstore.Save(command.name, event)
 }
@@ -34,11 +34,23 @@ func (h WithdrawMoneyHandler) handle(command WithdrawMoney) {
 	account := HydrateBankAccount(h.eventstore.Load(command.name))
 
 	if account.CanWithdrawn(command.value) {
-		event := MoneyWithdrawn{name: command.name, value: command.value}
+		event := MoneyWithdrawn{transactionId: command.transactionId, name: command.name, value: command.value}
 
 		h.eventstore.Save(command.name, event)
 	} else {
-		println("Cannot perform command: WithdrawMoney")
-	}
+		event := MoneyWithdrawnRejected{transactionId: command.transactionId, name: command.name, value: command.value}
 
+		h.eventstore.Save(command.name, event)
+	}
+}
+
+type WireTransferStartHandler struct {
+	eventstore EventStore
+}
+
+func (h WireTransferStartHandler) handle(command WireTransferStart) {
+
+	event := WireTransferStarted{name: command.name, transactionId: "randomUUID"}
+
+	h.eventstore.Save("randomUUID", event)
 }

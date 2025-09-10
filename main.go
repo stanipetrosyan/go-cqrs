@@ -15,7 +15,11 @@ func main() {
 	commandBus := NewCommandBus(eventstore)
 
 	//
-	NewWorkflow(eventbus, eventstore).Step(SagaStep{Transaction: "MoneyDeposited"}).Step(SagaStep{Transaction: "MoneyWithdrawn"}).Commit()
+	NewWorkflow(eventbus, eventstore).
+		Step(SagaStep{Transaction: "WireTransferStarted"}).
+		Step(SagaStep{Transaction: "MoneyDeposited"}).
+		Step(SagaStep{Transaction: "MoneyWithdrawn", Compensate: "MoneyWithdrawnRejected"}).
+		Commit()
 	//
 	accountProjection := NewAccountProjection(eventbus)
 	accountProjection.Listen()
@@ -24,15 +28,16 @@ func main() {
 
 	commandBus.apply(createAccount)
 
-	/* 	println("Accounts:", accountProjection.GetAccounts()[0])
-	 */
+	wireTransferStart := WireTransferStart{name: "user"}
+	commandBus.apply(wireTransferStart)
+
 	println("Depositing 10 dollars")
-	depositMoney := DepositMoney{name: "user", value: 10}
+	depositMoney := DepositMoney{transactionId: "randomUUID", name: "user", value: 10}
 
 	commandBus.apply(depositMoney)
 
 	println("Withdrawing 5 dollars")
-	withdrawMoney := WithdrawMoney{name: "user", value: 5}
+	withdrawMoney := WithdrawMoney{transactionId: "randomUUID", name: "user", value: 5}
 
 	commandBus.apply(withdrawMoney)
 	wg.Wait()
