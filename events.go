@@ -2,7 +2,7 @@ package main
 
 type Event interface {
 	Aggregate() string
-	eventName() string
+	EventName() string
 }
 
 type TransactionEvent interface {
@@ -14,7 +14,7 @@ type AccountCreated struct {
 	name string
 }
 
-func (e AccountCreated) eventName() string {
+func (e AccountCreated) EventName() string {
 	return "AccountCreated"
 }
 
@@ -28,7 +28,7 @@ type MoneyDeposited struct {
 	value         int
 }
 
-func (e MoneyDeposited) eventName() string {
+func (e MoneyDeposited) EventName() string {
 	return "MoneyDeposited"
 }
 
@@ -46,7 +46,7 @@ type MoneyWithdrawn struct {
 	value         int
 }
 
-func (e MoneyWithdrawn) eventName() string {
+func (e MoneyWithdrawn) EventName() string {
 	return "MoneyWithdrawn"
 }
 
@@ -64,7 +64,7 @@ type MoneyWithdrawnRejected struct {
 	value         int
 }
 
-func (e MoneyWithdrawnRejected) eventName() string {
+func (e MoneyWithdrawnRejected) EventName() string {
 	return "MoneyWithdrawnRejected"
 }
 
@@ -81,7 +81,7 @@ type WireTransferStarted struct {
 	name          string
 }
 
-func (e WireTransferStarted) eventName() string {
+func (e WireTransferStarted) EventName() string {
 	return "WireTransferStarted"
 }
 
@@ -97,7 +97,7 @@ type WireTransferCompleted struct {
 	transaction string
 }
 
-func (e WireTransferCompleted) eventName() string {
+func (e WireTransferCompleted) EventName() string {
 	return "WireTransferCompleted"
 }
 
@@ -109,7 +109,7 @@ type WireTransferRejected struct {
 	transaction string
 }
 
-func (e WireTransferRejected) eventName() string {
+func (e WireTransferRejected) EventName() string {
 	return "WireTransferRejected"
 }
 

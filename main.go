@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 
 	goeventbus "github.com/stanipetrosyan/go-eventbus"
@@ -15,12 +16,16 @@ func main() {
 	commandBus := NewCommandBus(eventstore)
 
 	//
-	NewWorkflow(eventbus, eventstore).
-		Step(SagaStep{Transaction: "WireTransferStarted"}).
+	err := NewWorkflow(eventbus, eventstore).
+		EntryPoint(SagaStep{Transaction: "WireTransferStarted"}).
 		Step(SagaStep{Transaction: "MoneyDeposited"}).
 		Step(SagaStep{Transaction: "MoneyWithdrawn", Compensate: "MoneyWithdrawnRejected"}).
 		Commit()
 	//
+
+	if err != nil {
+		fmt.Println(err)
+	}
 	accountProjection := NewAccountProjection(eventbus)
 	accountProjection.Listen()
 
@@ -28,18 +33,37 @@ func main() {
 
 	commandBus.apply(createAccount)
 
-	wireTransferStart := WireTransferStart{name: "user"}
+	transactionId := "randomUUID"
+	wireTransferStart := WireTransferStart{transactionId: transactionId, name: "user"}
 	commandBus.apply(wireTransferStart)
 
 	println("Depositing 10 dollars")
-	depositMoney := DepositMoney{transactionId: "randomUUID", name: "user", value: 10}
+	depositMoney := DepositMoney{transactionId: transactionId, name: "user", value: 10}
 
 	commandBus.apply(depositMoney)
 
 	println("Withdrawing 5 dollars")
-	withdrawMoney := WithdrawMoney{transactionId: "randomUUID", name: "user", value: 5}
+	withdrawMoney := WithdrawMoney{transactionId: transactionId, name: "user", value: 5}
 
 	commandBus.apply(withdrawMoney)
+
+	/* 	createAccount = CreateAccount{name: "anotherUser"}
+
+	   	commandBus.apply(createAccount)
+	   	transactionId = "anotherRandomUUID"
+	   	wireTransferStart = WireTransferStart{transactionId: transactionId, name: "anotherUser"}
+	   	commandBus.apply(wireTransferStart)
+
+	   	println("Depositing 10 dollars")
+	   	depositMoney = DepositMoney{transactionId: transactionId, name: "anotherUser", value: 10}
+
+	   	commandBus.apply(depositMoney)
+
+	   	println("Withdrawing 5 dollars")
+	   	withdrawMoney = WithdrawMoney{transactionId: transactionId, name: "anotherUser", value: 20}
+
+	   	commandBus.apply(withdrawMoney) */
+
 	wg.Wait()
 }
 

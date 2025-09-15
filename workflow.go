@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+
 	goeventbus "github.com/stanipetrosyan/go-eventbus"
 )
 
@@ -10,18 +12,27 @@ type SagaStep struct {
 }
 
 type Workflow interface {
+	EntryPoint(entry SagaStep) Workflow
 	Step(step SagaStep) Workflow
-	Commit()
+	Commit() error
 }
 
 type WireTransferWorkflow struct {
 	eventbus   goeventbus.EventBus
 	eventStore EventStore
 	steps      []SagaStep
+	entry      SagaStep
 }
 
 func NewWorkflow(eventbus goeventbus.EventBus, eventStore EventStore) Workflow {
-	return &WireTransferWorkflow{eventbus: eventbus, eventStore: eventStore, steps: []SagaStep{}}
+	return &WireTransferWorkflow{eventbus: eventbus, eventStore: eventStore, steps: []SagaStep{}, entry: SagaStep{}}
+}
+
+func (w *WireTransferWorkflow) EntryPoint(entry SagaStep) Workflow {
+	w.entry = entry
+	w.steps = append(w.steps, entry)
+
+	return w
 }
 
 func (w *WireTransferWorkflow) Step(step SagaStep) Workflow {
@@ -29,9 +40,13 @@ func (w *WireTransferWorkflow) Step(step SagaStep) Workflow {
 	return w
 }
 
-func (w *WireTransferWorkflow) Commit() {
+func (w *WireTransferWorkflow) Commit() error {
+	if (w.entry == SagaStep{}) {
+		return errors.New("Workflow must have an entry point")
+	}
+
 	if len(w.steps) == 0 {
-		return
+		return errors.New("Workflow must be at least one step")
 	}
 
 	var completedSteps map[string][]Event = make(map[string][]Event)
@@ -39,7 +54,7 @@ func (w *WireTransferWorkflow) Commit() {
 	for _, event := range w.steps {
 		w.eventbus.Channel(event.Transaction).Subscriber().Listen(func(context goeventbus.Context) {
 			eventReceived := context.Result().Extract().(TransactionEvent)
-			transactionId := context.Result().Extract().(TransactionEvent).Transaction()
+			transactionId := eventReceived.Transaction()
 
 			completedSteps[transactionId] = append(completedSteps[transactionId], eventReceived)
 
@@ -59,4 +74,5 @@ func (w *WireTransferWorkflow) Commit() {
 
 	}
 
+	return nil
 }

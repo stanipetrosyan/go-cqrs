@@ -19,5 +19,6 @@ type DepositMoney struct {
 }
 
 type WireTransferStart struct {
-	name string
+	transactionId string
+	name          string
 }

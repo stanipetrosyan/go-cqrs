@@ -50,7 +50,7 @@ type WireTransferStartHandler struct {
 
 func (h WireTransferStartHandler) handle(command WireTransferStart) {
 
-	event := WireTransferStarted{name: command.name, transactionId: "randomUUID"}
+	event := WireTransferStarted{name: command.name, transactionId: command.transactionId}
 
-	h.eventstore.Save("randomUUID", event)
+	h.eventstore.Save(command.name, event)
 }
